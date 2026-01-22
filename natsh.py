@@ -6,9 +6,8 @@ Talk to your terminal in plain English
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.0.5"
+VERSION = "1.0.6"
 
-import signal
 import os
 import sys
 import subprocess
@@ -60,11 +59,7 @@ command_history = []
 session_history = []
 ai_client = None
 
-def exit_handler(sig, frame):
-    print()
-    raise InterruptedError()
-
-signal.signal(signal.SIGINT, exit_handler)
+# Ctrl+C handling is done via try/except KeyboardInterrupt in main loop
 
 # ============== Configuration ==============
 
@@ -566,6 +561,11 @@ def main():
                 os.chdir(str(HOME))
                 continue
 
+            # === Exit commands ===
+            if user_input.lower() in ["exit", "quit", "q"]:
+                print("\033[90mGoodbye!\033[0m")
+                sys.exit(0)
+
             # === Special commands ===
             if user_input == "!help":
                 show_help()
@@ -767,7 +767,8 @@ del "%~f0"
         except EOFError:
             print("\n\033[90mGoodbye!\033[0m")
             break
-        except (InterruptedError, KeyboardInterrupt):
+        except KeyboardInterrupt:
+            print()  # New line after ^C
             continue
         except Exception as e:
             err = str(e)
