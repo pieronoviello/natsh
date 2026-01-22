@@ -5,6 +5,9 @@ Talk to your terminal in plain English
 
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
+
+VERSION = "1.0.1"
+
 import signal
 import os
 import sys
@@ -459,7 +462,7 @@ def show_welcome():
     """Display welcome message"""
     provider = config.get("provider", "gemini")
     print()
-    print("\033[1mnatsh\033[0m - Natural Shell")
+    print(f"\033[1mnatsh\033[0m v{VERSION} - Natural Shell")
     print(f"\033[90mProvider: {provider.upper()} | Type !help for commands\033[0m")
     print()
 
@@ -626,11 +629,32 @@ def main():
                 print("\033[33m[..] Checking for updates...\033[0m")
                 try:
                     import urllib.request
+                    import re
                     url = "https://raw.githubusercontent.com/pieronoviello/natsh/main/natsh.py"
+                    # Download and check remote version
+                    with urllib.request.urlopen(url) as response:
+                        remote_content = response.read().decode('utf-8')
+                    # Extract version from remote file
+                    match = re.search(r'VERSION\s*=\s*["\']([^"\']+)["\']', remote_content)
+                    if not match:
+                        print("\033[31m[X] Could not determine remote version\033[0m")
+                        continue
+                    remote_version = match.group(1)
+                    if remote_version == VERSION:
+                        print(f"\033[32m[OK] Already up to date (v{VERSION})\033[0m")
+                        continue
+                    # New version available - save it
+                    print(f"\033[33m[..] Updating v{VERSION} -> v{remote_version}...\033[0m")
                     local_path = NATSH_DIR / "natsh.py"
-                    # Download new version
-                    urllib.request.urlretrieve(url, local_path)
-                    print("\033[32m[OK] Updated! Restart natsh to use new version.\033[0m")
+                    with open(local_path, 'w', encoding='utf-8') as f:
+                        f.write(remote_content)
+                    print(f"\033[32m[OK] Updated to v{remote_version}!\033[0m")
+                    input("\033[90mPress Enter to restart natsh...\033[0m")
+                    # Restart natsh
+                    if IS_WINDOWS:
+                        os.execv(sys.executable, [sys.executable] + sys.argv)
+                    else:
+                        os.execv(sys.executable, ['python'] + sys.argv)
                 except Exception as e:
                     print(f"\033[31m[X] Update failed: {e}\033[0m")
                 continue
