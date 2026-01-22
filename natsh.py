@@ -624,15 +624,33 @@ def main():
             if user_input == "!uninstall":
                 confirm = input("\033[33mRemove natsh? [y/N]\033[0m ")
                 if confirm.lower() == "y":
-                    import shutil
                     install_dir, bin_paths = get_install_paths()
-                    if install_dir.exists():
-                        shutil.rmtree(install_dir)
-                    for bin_path in bin_paths:
-                        if bin_path.exists():
-                            bin_path.unlink()
-                    print("\033[32mnatsh uninstalled\033[0m")
-                    sys.exit(0)
+                    if IS_WINDOWS:
+                        # On Windows, create a batch script that runs after we exit
+                        import tempfile
+                        batch_content = f'''@echo off
+timeout /t 2 /nobreak >nul
+rmdir /s /q "{install_dir}"
+del /f /q "{bin_paths[0]}" 2>nul
+del /f /q "{bin_paths[1]}" 2>nul
+echo natsh uninstalled successfully
+del "%~f0"
+'''
+                        batch_path = Path(tempfile.gettempdir()) / "natsh_uninstall.bat"
+                        with open(batch_path, "w") as f:
+                            f.write(batch_content)
+                        subprocess.Popen(f'start /min cmd /c "{batch_path}"', shell=True)
+                        print("\033[32mUninstalling... (closes in 2 seconds)\033[0m")
+                        sys.exit(0)
+                    else:
+                        import shutil
+                        if install_dir.exists():
+                            shutil.rmtree(install_dir)
+                        for bin_path in bin_paths:
+                            if bin_path.exists():
+                                bin_path.unlink()
+                        print("\033[32mnatsh uninstalled\033[0m")
+                        sys.exit(0)
                 continue
 
             # === Explain mode ===
