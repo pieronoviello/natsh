@@ -381,6 +381,19 @@ def is_natural_language(text: str) -> bool:
     if text.startswith(("!", "?")):
         return False
 
+    text_lower = text.lower().strip()
+    words = text_lower.split()
+
+    # Common natural language words that indicate it's not a shell command
+    natural_indicators = ["to", "the", "a", "an", "my", "all", "me", "this", "that",
+                          "please", "can", "could", "would", "should", "what", "how",
+                          "show", "list", "create", "make", "delete", "remove", "open",
+                          "go", "navigate", "switch", "change", "find", "search", "get"]
+
+    # If second word is a natural language indicator, it's likely natural language
+    if len(words) >= 2 and words[1] in natural_indicators:
+        return True
+
     if IS_WINDOWS:
         shell_commands = ["dir", "cls", "exit", "quit", "whoami", "date", "time",
                           "type", "copy", "move", "del", "ren", "md", "rd", "tree",
@@ -403,7 +416,6 @@ def is_natural_language(text: str) -> bool:
                           "open ", "export ", "source ", "docker ", "kubectl ", "aws ", "gcloud ",
                           "./", "/", "~", "$", ">", ">>", "|", "&&"]
 
-    text_lower = text.lower().strip()
     if text_lower in [cmd.lower() for cmd in shell_commands]:
         return False
     return not any(text_lower.startswith(s.lower()) for s in shell_starters)
