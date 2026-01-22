@@ -6,7 +6,7 @@ Talk to your terminal in plain English
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 import os
 import sys
@@ -426,14 +426,16 @@ def is_dangerous_command(command: str) -> bool:
 def show_help():
     """Display available commands"""
     provider = config.get("provider", "gemini")
+    model = config.get("model", {}).get(provider, "default")
     print(f"""
 \033[1mnatsh\033[0m - Natural Shell
-\033[90mProvider: {provider.upper()}\033[0m
+\033[90mProvider: {provider.upper()} | Model: {model}\033[0m
 
 \033[36mCommands:\033[0m
   !help              Show this help
   !api [provider]    Set API key (gemini/openai/claude)
   !provider <name>   Switch AI provider
+  !model <name>      Set AI model (e.g., gpt-4o, claude-sonnet-4-20250514)
   !history [n]       Show last n commands (default: 20)
   !config            Show current configuration
   !alias <name>=<cmd> Create alias
@@ -462,9 +464,10 @@ def show_config():
 def show_welcome():
     """Display welcome message"""
     provider = config.get("provider", "gemini")
+    model = config.get("model", {}).get(provider, "default")
     print()
     print(f"\033[1mnatsh\033[0m v{VERSION} - Natural Shell")
-    print(f"\033[90mProvider: {provider.upper()} | Type !help for commands\033[0m")
+    print(f"\033[90mProvider: {provider.upper()} | Model: {model} | Type !help for commands\033[0m")
     print()
 
 # ============== Alias Management ==============
@@ -607,6 +610,29 @@ def main():
                 ai_client = init_ai_client(prov)
                 if ai_client:
                     print(f"\033[32mSwitched to {prov.upper()}\033[0m")
+                continue
+
+            if user_input.startswith("!model"):
+                parts = user_input.split(maxsplit=1)
+                prov = config.get("provider", "gemini")
+                current_model = config.get("model", {}).get(prov, "")
+                if len(parts) < 2:
+                    print(f"\033[90mCurrent model ({prov}): {current_model}\033[0m")
+                    print("\nUsage: !model <model-name>")
+                    print("\nExamples:")
+                    print("  !model gpt-4o              # for OpenAI")
+                    print("  !model claude-sonnet-4-20250514  # for Claude")
+                    print("  !model gemini-2.0-flash    # for Gemini")
+                    continue
+                new_model = parts[1].strip()
+                if "model" not in config:
+                    config["model"] = {}
+                config["model"][prov] = new_model
+                save_config()
+                # Reinitialize client with new model
+                ai_client = init_ai_client(prov)
+                if ai_client:
+                    print(f"\033[32mModel set to: {new_model}\033[0m")
                 continue
 
             if user_input.startswith("!history"):
