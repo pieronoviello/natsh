@@ -42,7 +42,11 @@ Write-Host "  [OK] Files saved to $INSTALL_DIR" -ForegroundColor Green
 Write-Host "[3/5] Creating isolated Python environment (venv)..." -ForegroundColor Yellow
 Write-Host "      This keeps natsh dependencies separate from your system" -ForegroundColor DarkGray
 Push-Location $INSTALL_DIR
-if (Test-Path venv) { Remove-Item -Recurse -Force venv }
+if (Test-Path venv) {
+    # Use cmd's rmdir for better handling of long paths on Windows
+    cmd /c "rmdir /s /q venv" 2>$null
+    Start-Sleep -Milliseconds 500
+}
 & $py -m venv venv 2>$null
 Write-Host "  [OK] Virtual environment created at $INSTALL_DIR\venv" -ForegroundColor Green
 
