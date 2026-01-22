@@ -85,7 +85,8 @@ Write-Host ""
 Write-Host "  Your system Python was NOT modified." -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  Next steps:" -ForegroundColor Cyan
-Write-Host "    1. Open a NEW terminal"
-Write-Host "    2. Run: natsh"
-Write-Host "    3. Get free API key: https://aistudio.google.com/apikey"
+Write-Host "    1. Run: natsh"
+Write-Host "    2. Get free API key: https://aistudio.google.com/apikey"
+Write-Host ""
+Write-Host "  (Works immediately - no need to open a new terminal)" -ForegroundColor DarkGray
 Write-Host ""
