@@ -6,7 +6,7 @@ Talk to your terminal in plain English
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 
 import signal
 import os
@@ -630,10 +630,14 @@ def main():
                 try:
                     import urllib.request
                     import re
-                    url = "https://raw.githubusercontent.com/pieronoviello/natsh/main/natsh.py"
-                    # Download and check remote version
-                    with urllib.request.urlopen(url) as response:
-                        remote_content = response.read().decode('utf-8')
+                    import base64
+                    # Use GitHub API (no cache) instead of raw.githubusercontent.com
+                    api_url = "https://api.github.com/repos/pieronoviello/natsh/contents/natsh.py"
+                    req = urllib.request.Request(api_url, headers={"Accept": "application/vnd.github.v3+json"})
+                    with urllib.request.urlopen(req) as response:
+                        data = json.loads(response.read().decode('utf-8'))
+                    # Decode base64 content
+                    remote_content = base64.b64decode(data['content']).decode('utf-8')
                     # Extract version from remote file
                     match = re.search(r'VERSION\s*=\s*["\']([^"\']+)["\']', remote_content)
                     if not match:
