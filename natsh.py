@@ -6,7 +6,7 @@ Talk to your terminal in plain English
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.2.1"
+VERSION = "1.2.2"
 
 import os
 import sys
@@ -628,15 +628,21 @@ def main():
                 parts = user_input.split(maxsplit=1)
                 prov = config.get("provider", "gemini")
                 current_model = config.get("model", {}).get(prov, "")
+                default_model = DEFAULT_CONFIG["model"].get(prov, "")
                 if len(parts) < 2:
                     print(f"\033[90mCurrent model ({prov}): {current_model}\033[0m")
+                    print(f"\033[90mDefault model ({prov}): {default_model}\033[0m")
                     print("\nUsage: !model <model-name>")
+                    print("       !model default        # reset to default")
                     print("\nExamples:")
                     print("  !model gpt-4o              # for OpenAI")
                     print("  !model claude-sonnet-4-20250514  # for Claude")
                     print("  !model gemini-2.0-flash    # for Gemini")
                     continue
                 new_model = parts[1].strip()
+                # Handle "default" keyword
+                if new_model.lower() == "default":
+                    new_model = default_model
                 if "model" not in config:
                     config["model"] = {}
                 config["model"][prov] = new_model
