@@ -39,24 +39,37 @@ Invoke-WebRequest "$RAW/requirements.txt" -OutFile "$INSTALL_DIR\requirements.tx
 Write-Host "  [OK] Files saved to $INSTALL_DIR" -ForegroundColor Green
 
 # Step 3: Create isolated virtual environment
-Write-Host "[3/5] Creating isolated Python environment (venv)..." -ForegroundColor Yellow
-Write-Host "      This keeps natsh dependencies separate from your system" -ForegroundColor DarkGray
+Write-Host "[3/5] Creating virtual environment... " -ForegroundColor Yellow -NoNewline
 Push-Location $INSTALL_DIR
 if (Test-Path venv) {
-    # Use cmd's rmdir for better handling of long paths on Windows
     cmd /c "rmdir /s /q venv" 2>$null
+    Start-Sleep -Seconds 1
+}
+$venvJob = Start-Job -ScriptBlock { param($p, $d) Set-Location $d; & $p -m venv venv 2>&1 } -ArgumentList $py, $INSTALL_DIR
+while ($venvJob.State -eq 'Running') {
+    Write-Host "." -NoNewline
     Start-Sleep -Milliseconds 500
 }
-& $py -m venv venv 2>$null
-Write-Host "  [OK] Virtual environment created at $INSTALL_DIR\venv" -ForegroundColor Green
+$null = Receive-Job $venvJob
+Remove-Job $venvJob
+Write-Host " done" -ForegroundColor Green
 
 # Step 4: Install dependencies inside venv
-Write-Host "[4/5] Installing AI libraries inside venv..." -ForegroundColor Yellow
-Write-Host "      (google-genai, openai, anthropic, pyreadline3)" -ForegroundColor DarkGray
-& .\venv\Scripts\python.exe -m pip install -q --upgrade pip 2>$null
-& .\venv\Scripts\pip.exe install -q -r requirements.txt 2>$null
+Write-Host "[4/5] Installing AI libraries... " -ForegroundColor Yellow -NoNewline
+$pipJob = Start-Job -ScriptBlock {
+    param($d)
+    Set-Location $d
+    & .\venv\Scripts\python.exe -m pip install -q --upgrade pip 2>&1
+    & .\venv\Scripts\pip.exe install -q -r requirements.txt 2>&1
+} -ArgumentList $INSTALL_DIR
+while ($pipJob.State -eq 'Running') {
+    Write-Host "." -NoNewline
+    Start-Sleep -Milliseconds 500
+}
+$null = Receive-Job $pipJob
+Remove-Job $pipJob
 Pop-Location
-Write-Host "  [OK] Dependencies installed (only in venv, not system-wide)" -ForegroundColor Green
+Write-Host " done" -ForegroundColor Green
 
 # Step 5: Create command wrappers and add to PATH
 Write-Host "[5/5] Creating 'natsh' command..." -ForegroundColor Yellow
