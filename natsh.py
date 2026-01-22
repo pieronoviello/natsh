@@ -6,7 +6,7 @@ Talk to your terminal in plain English
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 
 import signal
 import os
