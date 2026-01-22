@@ -6,7 +6,7 @@ Talk to your terminal in plain English
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.0.3"
+VERSION = "1.0.4"
 
 import signal
 import os
@@ -653,12 +653,7 @@ def main():
                     with open(local_path, 'w', encoding='utf-8') as f:
                         f.write(remote_content)
                     print(f"\033[32m[OK] Updated to v{remote_version}!\033[0m")
-                    input("\033[90mPress Enter to restart natsh...\033[0m")
-                    # Restart natsh
-                    if IS_WINDOWS:
-                        os.execv(sys.executable, [sys.executable] + sys.argv)
-                    else:
-                        os.execv(sys.executable, ['python'] + sys.argv)
+                    print("\033[90mType 'exit' and run 'natsh' again to use the new version.\033[0m")
                 except Exception as e:
                     print(f"\033[31m[X] Update failed: {e}\033[0m")
                 continue
