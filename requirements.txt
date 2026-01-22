@@ -1,0 +1,10 @@
+# natsh - Windows Intelligent Shell Helper
+# Core dependencies
+
+# AI Providers (install at least one)
+google-genai      # Gemini (free tier available)
+openai            # OpenAI GPT (paid)
+anthropic         # Claude (paid)
+
+# Windows readline support
+pyreadline3
