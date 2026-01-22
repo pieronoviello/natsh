@@ -10,7 +10,7 @@
 Downloads > show me all files
 -> dir [Enter]
  Volume in drive C is Windows
- Directory of C:\Users\piero\Downloads
+ Directory of C:\Users\dev\Downloads
 ...
 
 Downloads > create a folder called projects
@@ -27,6 +27,7 @@ Downloads > open notepad
 
 - **Natural Language to Commands**: Just describe what you want to do
 - **Multi-AI Provider**: Switch between Gemini (free), OpenAI, or Claude
+- **Model Selection**: Use any model (gpt-5.2, claude-sonnet-4, gemini-2.0-flash, etc.)
 - **Safe Mode**: Asks confirmation for dangerous commands (del, rmdir, etc.)
 - **Command History**: Persistent history across sessions (100 commands)
 - **Explain Mode**: Use `?command` to understand what a command does
@@ -71,6 +72,7 @@ natsh
 | `!help` | Show help |
 | `!api [provider]` | Set API key for provider |
 | `!provider <name>` | Switch AI provider (gemini/openai/claude) |
+| `!model <name>` | Switch AI model (e.g., gpt-4o, gpt-5.2, claude-sonnet-4-20250514) |
 | `!history [n]` | Show last n commands (default: 20) |
 | `!config` | Show configuration |
 | `!alias name=cmd` | Create alias |
@@ -105,18 +107,24 @@ ll                          # Uses alias -> dir /w
 
 ## AI Providers
 
-| Provider | Model | Cost | Get API Key |
-|----------|-------|------|-------------|
+| Provider | Default Model | Cost | Get API Key |
+|----------|---------------|------|-------------|
 | **Gemini** (default) | gemini-2.5-flash | Free (with limits) | [aistudio.google.com](https://aistudio.google.com/apikey) |
 | **OpenAI** | gpt-4o-mini | ~$0.15/1M tokens | [platform.openai.com](https://platform.openai.com/api-keys) |
 | **Claude** | claude-3-haiku | ~$0.25/1M tokens | [console.anthropic.com](https://console.anthropic.com/settings/keys) |
 
-### Switching Providers
+### Switching Providers & Models
 
 ```bash
 !provider openai            # Switch to OpenAI
 !provider claude            # Switch to Claude
 !api openai                 # Set API key for specific provider
+
+# Change model (use any valid model name for your provider)
+!model gpt-5.2              # Use GPT-5.2 instead of gpt-4o-mini
+!model gpt-4o               # Use GPT-4o
+!model claude-sonnet-4-20250514  # Use Claude Sonnet 4
+!model gemini-2.0-flash     # Use Gemini 2.0 Flash
 ```
 
 ## Configuration
@@ -126,6 +134,11 @@ Configuration is stored in `~/.natsh/config.json`:
 ```json
 {
   "provider": "gemini",
+  "model": {
+    "gemini": "gemini-2.5-flash",
+    "openai": "gpt-4o-mini",
+    "claude": "claude-3-haiku-20240307"
+  },
   "safe_mode": true,
   "max_history": 100,
   "aliases": {
