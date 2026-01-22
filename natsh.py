@@ -434,6 +434,7 @@ def show_help():
   !config            Show current configuration
   !alias <name>=<cmd> Create alias
   !aliases           List all aliases
+  !update            Update to latest version
   !uninstall         Remove natsh
 
 \033[36mSpecial:\033[0m
@@ -619,6 +620,19 @@ def main():
 
             if user_input == "!aliases":
                 show_aliases()
+                continue
+
+            if user_input == "!update":
+                print("\033[33m[..] Checking for updates...\033[0m")
+                try:
+                    import urllib.request
+                    url = "https://raw.githubusercontent.com/pieronoviello/natsh/main/natsh.py"
+                    local_path = NATSH_DIR / "natsh.py"
+                    # Download new version
+                    urllib.request.urlretrieve(url, local_path)
+                    print("\033[32m[OK] Updated! Restart natsh to use new version.\033[0m")
+                except Exception as e:
+                    print(f"\033[31m[X] Update failed: {e}\033[0m")
                 continue
 
             if user_input == "!uninstall":
