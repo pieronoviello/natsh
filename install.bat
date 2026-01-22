@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: natsh - Windows Intelligent Shell Helper
+:: natsh - Natural Shell
 :: Installation script for CMD
 ::
 :: Run: install.bat
@@ -10,7 +10,7 @@ set "INSTALL_DIR=%USERPROFILE%\.natsh"
 set "BIN_DIR=%USERPROFILE%\.local\bin"
 
 echo.
-echo   natsh - Windows Intelligent Shell Helper
+echo   natsh - Natural Shell
 echo   Talk to your terminal in plain English
 echo.
 

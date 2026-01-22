@@ -1,4 +1,4 @@
-# natsh - Windows Intelligent Shell Helper
+# natsh - Natural Shell
 
 > Talk to your terminal in plain English
 

@@ -1,4 +1,4 @@
-# natsh - Windows Intelligent Shell Helper
+# natsh - Natural Shell
 # Core dependencies
 
 # AI Providers (install at least one)

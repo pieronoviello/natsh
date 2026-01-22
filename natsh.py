@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-natsh - Windows Intelligent Shell Helper
+natsh - Natural Shell
 Talk to your terminal in plain English
 
 Supports multiple AI providers: Gemini, OpenAI, Claude
