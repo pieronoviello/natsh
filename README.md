@@ -156,14 +156,30 @@ Configuration is stored in `~/.natsh/config.json`:
 
 ## Uninstall
 
-```bash
-# From within natsh
-!uninstall
+### Quick Uninstall (PowerShell)
 
-# Or manually
+```powershell
+irm https://raw.githubusercontent.com/pieronoviello/natsh/main/uninstall.ps1 | iex
+```
+
+### From within natsh
+
+```bash
+!uninstall
+```
+
+### Manual Uninstall
+
+```bash
 rmdir /s /q %USERPROFILE%\.natsh
 del %USERPROFILE%\.local\bin\natsh.bat
+del %USERPROFILE%\.local\bin\natsh.ps1
 ```
+
+This removes:
+- `~/.natsh/` - Configuration, history, API keys, virtual environment
+- `~/.local/bin/natsh.bat` - Command wrapper (CMD)
+- `~/.local/bin/natsh.ps1` - Command wrapper (PowerShell)
 
 ## Contributing
 
