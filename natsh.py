@@ -6,7 +6,7 @@ Talk to your terminal in plain English
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.2.2"
+VERSION = "1.2.3"
 
 import os
 import sys
@@ -447,7 +447,7 @@ def show_help():
   !help              Show this help
   !api [provider]    Set API key (gemini/openai/claude)
   !provider <name>   Switch AI provider
-  !model <name>      Set AI model (e.g., gpt-4o, claude-sonnet-4-20250514)
+  !model [name]      Show or set AI model (!model default to reset)
   !history [n]       Show last n commands (default: 20)
   !config            Show current configuration
   !alias <name>=<cmd> Create alias
@@ -463,6 +463,7 @@ def show_help():
   show all files     -> dir (translated by AI)
   ?dir /s            -> explains the command
   !dir               -> runs dir directly
+  !model gpt-5.2     -> switch to GPT-5.2
 
 \033[90mType 'exit' or press Ctrl+C to quit\033[0m
 """)
