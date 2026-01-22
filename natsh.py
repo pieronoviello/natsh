@@ -423,8 +423,8 @@ def show_help():
     """Display available commands"""
     provider = config.get("provider", "gemini")
     print(f"""
-\033[1mnatsh\033[0m - Windows Intelligent Shell Helper
-\033[90mCurrent provider: {provider.upper()}\033[0m
+\033[1mnatsh\033[0m - Natural Shell
+\033[90mProvider: {provider.upper()}\033[0m
 
 \033[36mCommands:\033[0m
   !help              Show this help
@@ -458,7 +458,7 @@ def show_welcome():
     """Display welcome message"""
     provider = config.get("provider", "gemini")
     print()
-    print("\033[1mnatsh\033[0m - Windows Intelligent Shell Helper")
+    print("\033[1mnatsh\033[0m - Natural Shell")
     print(f"\033[90mProvider: {provider.upper()} | Type !help for commands\033[0m")
     print()
 
