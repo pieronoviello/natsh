@@ -28,9 +28,10 @@ Downloads > open notepad
 - **Natural Language to Commands**: Just describe what you want to do
 - **Multi-AI Provider**: Switch between Gemini (free), OpenAI, or Claude
 - **Safe Mode**: Asks confirmation for dangerous commands (del, rmdir, etc.)
-- **Command History**: Persistent history across sessions
+- **Command History**: Persistent history across sessions (100 commands)
 - **Explain Mode**: Use `?command` to understand what a command does
 - **Aliases**: Create shortcuts for frequent commands
+- **Auto-Update**: Update to latest version with `!update`
 - **Windows Native**: Built for Windows CMD, uses proper Windows commands
 
 ## Installation
@@ -41,14 +42,13 @@ Downloads > open notepad
 irm https://raw.githubusercontent.com/pieronoviello/natsh/main/install.ps1 | iex
 ```
 
+Then run `natsh` (works immediately, no need to open a new terminal).
+
 ### Manual Install
 
 ```powershell
-# Clone repository
 git clone https://github.com/pieronoviello/natsh.git
 cd natsh
-
-# Run installer
 .\install.ps1
 ```
 
@@ -59,8 +59,6 @@ cd natsh
 - API key from one of: [Gemini](https://aistudio.google.com/apikey) (free), [OpenAI](https://platform.openai.com/api-keys), or [Claude](https://console.anthropic.com/settings/keys)
 
 ## Usage
-
-After installation, open a **new terminal** and run:
 
 ```
 natsh
@@ -73,13 +71,15 @@ natsh
 | `!help` | Show help |
 | `!api [provider]` | Set API key for provider |
 | `!provider <name>` | Switch AI provider (gemini/openai/claude) |
-| `!history [n]` | Show last n commands |
+| `!history [n]` | Show last n commands (default: 20) |
 | `!config` | Show configuration |
 | `!alias name=cmd` | Create alias |
 | `!aliases` | List aliases |
+| `!update` | Update to latest version |
+| `!uninstall` | Remove natsh |
 | `?<command>` | Explain a command |
 | `!<command>` | Run command directly (bypass AI) |
-| `!uninstall` | Remove natsh |
+| `exit` / `quit` | Exit natsh |
 
 ### Examples
 
@@ -114,14 +114,9 @@ ll                          # Uses alias -> dir /w
 ### Switching Providers
 
 ```bash
-# Switch to OpenAI
-!provider openai
-
-# Switch to Claude
-!provider claude
-
-# Set API key for specific provider
-!api openai
+!provider openai            # Switch to OpenAI
+!provider claude            # Switch to Claude
+!api openai                 # Set API key for specific provider
 ```
 
 ## Configuration
@@ -134,8 +129,7 @@ Configuration is stored in `~/.natsh/config.json`:
   "safe_mode": true,
   "max_history": 100,
   "aliases": {
-    "ll": "dir /w",
-    "cls": "cls"
+    "ll": "dir /w"
   }
 }
 ```
@@ -144,46 +138,35 @@ Configuration is stored in `~/.natsh/config.json`:
 
 ```
 ~/.natsh/
-├── natsh.py          # Main script
+├── natsh.py         # Main script
 ├── config.json      # Configuration
 ├── history.json     # Command history
 ├── .env             # API keys (never committed)
 └── venv/            # Python virtual environment
 
 ~/.local/bin/
-└── natsh.bat         # Command wrapper
+├── natsh.bat        # Command wrapper (CMD)
+└── natsh.ps1        # Command wrapper (PowerShell)
+```
+
+## Update
+
+```bash
+!update              # Check and install updates from within natsh
 ```
 
 ## Uninstall
 
-### Quick Uninstall (PowerShell)
-
-```powershell
-irm https://raw.githubusercontent.com/pieronoviello/natsh/main/uninstall.ps1 | iex
-```
-
-### From within natsh
-
+From within natsh:
 ```bash
 !uninstall
 ```
 
-### Manual Uninstall
-
-```bash
-rmdir /s /q %USERPROFILE%\.natsh
-del %USERPROFILE%\.local\bin\natsh.bat
-del %USERPROFILE%\.local\bin\natsh.ps1
+Or manually:
+```powershell
+Remove-Item -Recurse -Force "$env:USERPROFILE\.natsh"
+Remove-Item -Force "$env:USERPROFILE\.local\bin\natsh.*"
 ```
-
-This removes:
-- `~/.natsh/` - Configuration, history, API keys, virtual environment
-- `~/.local/bin/natsh.bat` - Command wrapper (CMD)
-- `~/.local/bin/natsh.ps1` - Command wrapper (PowerShell)
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 

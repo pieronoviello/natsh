@@ -6,7 +6,7 @@ Talk to your terminal in plain English
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.0.7"
+VERSION = "1.1.0"
 
 import os
 import sys
@@ -70,8 +70,14 @@ def load_config():
         try:
             with open(CONFIG_FILE) as f:
                 saved_config = json.load(f)
-                config = {**DEFAULT_CONFIG, **saved_config}
-        except:
+                # Deep merge for nested dicts
+                config = DEFAULT_CONFIG.copy()
+                for key, value in saved_config.items():
+                    if key in config and isinstance(config[key], dict) and isinstance(value, dict):
+                        config[key] = {**config[key], **value}
+                    else:
+                        config[key] = value
+        except (json.JSONDecodeError, IOError):
             config = DEFAULT_CONFIG.copy()
     else:
         config = DEFAULT_CONFIG.copy()
@@ -126,7 +132,7 @@ def load_history():
                 # Keep only last max_history entries
                 max_hist = config.get("max_history", 100)
                 command_history = command_history[-max_hist:]
-        except:
+        except (json.JSONDecodeError, IOError):
             command_history = []
     return command_history
 
@@ -444,7 +450,7 @@ def show_help():
   ?dir /s            -> explains the command
   !dir               -> runs dir directly
 
-\033[90mPress Ctrl+C to cancel, Ctrl+D to exit\033[0m
+\033[90mType 'exit' or press Ctrl+C to quit\033[0m
 """)
 
 def show_config():
@@ -488,7 +494,8 @@ def resolve_alias(text: str) -> str:
     aliases = config.get("aliases", {})
     parts = text.split()
     if parts and parts[0] in aliases:
-        return aliases[parts[0]] + " " + " ".join(parts[1:])
+        args = " ".join(parts[1:])
+        return aliases[parts[0]] + (" " + args if args else "")
     return text
 
 # ============== Command Execution ==============
@@ -604,7 +611,10 @@ def main():
 
             if user_input.startswith("!history"):
                 parts = user_input.split()
-                count = int(parts[1]) if len(parts) > 1 else 20
+                try:
+                    count = int(parts[1]) if len(parts) > 1 else 20
+                except ValueError:
+                    count = 20
                 show_history(count)
                 continue
 
