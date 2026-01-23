@@ -6,7 +6,7 @@ Say it. Run it.
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.3.2"
+VERSION = "1.4.0"
 
 import os
 import sys
@@ -415,10 +415,10 @@ History:
 Rules:
 {shell_rules}
 
-CRITICAL: Reply with ONLY the command. No explanations, no thinking, no markdown, no backticks, no "THOUGHT:", no quotes. Just the raw command.
+RESPOND WITH ONLY THIS JSON FORMAT, NOTHING ELSE:
+{{"cmd": "your command here"}}
 
-Request: {user_input}
-Command:"""
+Request: {user_input}"""
 
 def build_explain_prompt(command: str) -> str:
     """Build prompt to explain a command"""
@@ -429,60 +429,70 @@ Command: {command}
 Explain what it does and any important flags/options."""
 
 def clean_command(response: str) -> str:
-    """Clean up AI response to extract just the command"""
+    """Clean up AI response to extract just the command using JSON parsing"""
+    import re
+
     if not response:
         return response
 
     response = response.strip()
 
     # Remove markdown code blocks
-    if response.startswith("```"):
-        lines = response.split("\n")
-        lines = [l for l in lines[1:] if not l.startswith("```")]
-        response = "\n".join(lines).strip()
+    if "```" in response:
+        # Extract content between ``` markers
+        match = re.search(r'```(?:json)?\s*(.*?)\s*```', response, re.DOTALL)
+        if match:
+            response = match.group(1).strip()
+        else:
+            # Remove ``` lines
+            lines = response.split("\n")
+            lines = [l for l in lines if not l.strip().startswith("```")]
+            response = "\n".join(lines).strip()
 
-    # Remove backticks
-    response = response.strip("`")
+    # Try to parse as JSON
+    try:
+        data = json.loads(response)
+        if isinstance(data, dict) and "cmd" in data:
+            return data["cmd"]
+    except json.JSONDecodeError:
+        pass
 
-    # Common Windows commands to look for
-    win_commands = ["dir", "cd", "cls", "del", "copy", "move", "type", "mkdir", "md",
-                   "rmdir", "rd", "ren", "echo", "start", "tasklist", "taskkill",
-                   "ipconfig", "ping", "netstat", "findstr", "where", "whoami",
-                   "systeminfo", "hostname", "set", "path", "tree", "more", "sort"]
+    # Fallback: try to extract JSON from response
+    json_match = re.search(r'\{[^{}]*"cmd"\s*:\s*"([^"]+)"[^{}]*\}', response)
+    if json_match:
+        return json_match.group(1)
 
-    # Check if response contains reasoning followed by command on same line
-    response_lower = response.lower()
-    for cmd in win_commands:
-        # Find command in the response
-        idx = response_lower.find(cmd)
-        if idx > 0:
-            # Check if there's reasoning before it
-            before = response[:idx].rstrip()
-            if any(x in before.upper() for x in ["THOUGHT", "THINK", ":", "."]):
-                # Extract from command onwards
-                remaining = response[idx:]
-                # Take until end of line
-                if "\n" in remaining:
-                    remaining = remaining.split("\n")[0]
-                return remaining.strip()
+    # Fallback: find { to } and try to parse
+    start = response.find("{")
+    end = response.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        try:
+            data = json.loads(response[start:end+1])
+            if isinstance(data, dict) and "cmd" in data:
+                return data["cmd"]
+        except json.JSONDecodeError:
+            pass
 
-    # If contains "THOUGHT:" or reasoning, try to extract just the command
-    lines = response.split("\n")
-    for line in reversed(lines):
-        line = line.strip()
-        if not line:
-            continue
-        if any(x in line.upper() for x in ["THOUGHT", "THINK", "REASON", "BECAUSE", "LET ME", "I'LL", "I WILL"]):
-            continue
-        return line
+    # Final fallback: extract command from text (for non-JSON responses)
+    # Remove common reasoning prefixes
+    for prefix in ["THOUGHT:", "THOUGHTS:", "THINKING:", "REASON:"]:
+        if prefix in response.upper():
+            idx = response.upper().find(prefix)
+            # Look for command after the reasoning
+            remaining = response[idx:]
+            # Find first line that looks like a command
+            lines = remaining.split("\n")
+            for line in lines[1:]:  # Skip the THOUGHT line
+                line = line.strip()
+                if line and not any(x in line.upper() for x in ["THOUGHT", "THINK", "REASON"]):
+                    return line
 
-    # Fallback: return first non-empty line
-    for line in lines:
-        line = line.strip()
-        if line and not line.startswith(("#", "//", "THOUGHT")):
-            return line
+    # Very final fallback: return last non-empty line
+    lines = [l.strip() for l in response.split("\n") if l.strip()]
+    if lines:
+        return lines[-1]
 
-    return response.strip()
+    return response
 
 def get_command(user_input: str, cwd: str) -> str:
     """Use AI to translate natural language to shell command"""
