@@ -207,6 +207,10 @@
             border-bottom: 1px solid var(--border);
         }
 
+        .terminal-section .container {
+            max-width: 900px;
+        }
+
         .section-header {
             display: flex;
             align-items: center;
@@ -222,14 +226,16 @@
         }
 
         .video-container {
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             border: 1px solid var(--border);
+            background: var(--surface);
         }
 
         .video-container video {
             width: 100%;
             display: block;
+            cursor: pointer;
         }
 
         .terminal {
@@ -450,7 +456,7 @@
                     <span class="section-title">Demo</span>
                 </div>
                 <div class="video-container">
-                    <video autoplay loop muted playsinline>
+                    <video autoplay loop muted playsinline controls>
                         <source src="demo-fast.mp4" type="video/mp4">
                     </video>
                 </div>
