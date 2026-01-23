@@ -1,6 +1,6 @@
 # natsh - Natural Shell
 
-> Talk to your terminal in plain English
+> Talk to your terminal in plain words
 
 **natsh** translates natural language into shell commands using AI. Supports multiple AI providers: Gemini (free), OpenAI, and Claude.
 

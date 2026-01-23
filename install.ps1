@@ -13,7 +13,7 @@ $RAW = "https://raw.githubusercontent.com/pieronoviello/natsh/main"
 
 Write-Host ""
 Write-Host "  natsh - Natural Shell" -ForegroundColor Cyan
-Write-Host "  Talk to your terminal in plain English" -ForegroundColor DarkGray
+Write-Host "  Talk to your terminal in plain words" -ForegroundColor DarkGray
 Write-Host ""
 
 # Step 1: Check for existing Python installation
