@@ -6,7 +6,7 @@ Say it. Run it.
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.4.1"
+VERSION = "1.4.2"
 
 import os
 import sys
@@ -920,7 +920,9 @@ del "%~f0"
                 print("\033[31mAI not initialized. Run !api to set up.\033[0m")
                 continue
 
+            print("\033[90m[..] thinking...\033[0m", end="", flush=True)
             command = get_command(user_input, cwd)
+            print("\r\033[K", end="")  # Clear the thinking message
 
             if not command:
                 print("\033[31mCould not generate command.\033[0m")
