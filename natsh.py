@@ -6,7 +6,7 @@ Say it. Run it.
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.3.1"
+VERSION = "1.3.2"
 
 import os
 import sys
@@ -433,27 +433,47 @@ def clean_command(response: str) -> str:
     if not response:
         return response
 
-    # Remove markdown code blocks
     response = response.strip()
+
+    # Remove markdown code blocks
     if response.startswith("```"):
         lines = response.split("\n")
-        # Remove first and last lines (``` markers)
         lines = [l for l in lines[1:] if not l.startswith("```")]
         response = "\n".join(lines).strip()
 
     # Remove backticks
     response = response.strip("`")
 
+    # Common Windows commands to look for
+    win_commands = ["dir", "cd", "cls", "del", "copy", "move", "type", "mkdir", "md",
+                   "rmdir", "rd", "ren", "echo", "start", "tasklist", "taskkill",
+                   "ipconfig", "ping", "netstat", "findstr", "where", "whoami",
+                   "systeminfo", "hostname", "set", "path", "tree", "more", "sort"]
+
+    # Check if response contains reasoning followed by command on same line
+    response_lower = response.lower()
+    for cmd in win_commands:
+        # Find command in the response
+        idx = response_lower.find(cmd)
+        if idx > 0:
+            # Check if there's reasoning before it
+            before = response[:idx].rstrip()
+            if any(x in before.upper() for x in ["THOUGHT", "THINK", ":", "."]):
+                # Extract from command onwards
+                remaining = response[idx:]
+                # Take until end of line
+                if "\n" in remaining:
+                    remaining = remaining.split("\n")[0]
+                return remaining.strip()
+
     # If contains "THOUGHT:" or reasoning, try to extract just the command
     lines = response.split("\n")
     for line in reversed(lines):
         line = line.strip()
-        # Skip empty lines and reasoning
         if not line:
             continue
         if any(x in line.upper() for x in ["THOUGHT", "THINK", "REASON", "BECAUSE", "LET ME", "I'LL", "I WILL"]):
             continue
-        # This is likely the command
         return line
 
     # Fallback: return first non-empty line
