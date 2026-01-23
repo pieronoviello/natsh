@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>natsh - Natural Shell</title>
+    <meta name="description" content="Talk to your terminal in plain words. natsh translates natural language into shell commands using AI.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --surface: #121212;
+            --border: #262626;
+            --text: #ededed;
+            --muted: #888;
+            --accent: #f59e0b;
+            --green: #4ade80;
+            --red: #f87171;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', ui-monospace, monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            font-size: 13px;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+        }
+
+        /* Hero */
+        .hero {
+            padding: 80px 0 60px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero h1 {
+            font-size: 32px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 span {
+            color: var(--accent);
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 32px;
+            max-width: 500px;
+        }
+
+        /* Install */
+        .install-section {
+            margin-bottom: 32px;
+        }
+
+        .install-tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .install-tab {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            padding: 0;
+        }
+
+        .install-tab:hover {
+            color: var(--text);
+        }
+
+        .install-tab.active {
+            color: var(--text);
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .install-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .install-box code {
+            color: var(--green);
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .install-box.uninstall code {
+            color: var(--red);
+        }
+
+        .copy-btn {
+            background: var(--border);
+            border: none;
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #333;
+        }
+
+        .platform-info {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 12px;
+        }
+
+        .platform-info .active {
+            color: var(--green);
+        }
+
+        /* Terminal */
+        .terminal-section {
+            padding: 60px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .terminal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .terminal-body {
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.9;
+        }
+
+        .line {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .prompt {
+            color: var(--accent);
+            margin-right: 8px;
+        }
+
+        .input {
+            color: var(--text);
+        }
+
+        .output {
+            color: var(--muted);
+            margin-left: 0;
+            display: block;
+            width: 100%;
+        }
+
+        .cmd {
+            color: var(--green);
+        }
+
+        .danger {
+            color: var(--red);
+        }
+
+        /* Features */
+        .features-section {
+            padding: 60px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feature {
+            padding: 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .feature h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .feature p {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* Commands */
+        .commands-section {
+            padding: 60px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .commands-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .command-row {
+            display: flex;
+            gap: 24px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .command-row:last-child {
+            border-bottom: none;
+        }
+
+        .command-name {
+            color: var(--accent);
+            min-width: 160px;
+        }
+
+        .command-desc {
+            color: var(--muted);
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 24px;
+            }
+
+            .install-box {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .install-box code {
+                font-size: 11px;
+                text-align: center;
+                margin-bottom: 8px;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-inner">
+                <a href="#" class="logo">
+                    <div class="logo-icon">n</div>
+                    <span>natsh</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="#demo">Demo</a>
+                    <a href="#features">Features</a>
+                    <a href="#commands">Commands</a>
+                    <a href="https://github.com/pieronoviello/natsh" target="_blank">GitHub</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Talk to your terminal<br><span>in plain words</span></h1>
+                <p>natsh translates natural language into shell commands using AI. Just describe what you want and let AI figure out the right command.</p>
+
+                <div class="install-section">
+                    <div class="install-tabs">
+                        <button class="install-tab active" onclick="showTab('install')">install</button>
+                        <button class="install-tab" onclick="showTab('uninstall')">uninstall</button>
+                    </div>
+                    <div class="install-box" id="install-box">
+                        <code id="install-cmd">irm https://raw.githubusercontent.com/pieronoviello/natsh/main/install.ps1 | iex</code>
+                        <button class="copy-btn" onclick="copyCmd()">copy</button>
+                    </div>
+                    <p class="platform-info">
+                        <span class="active">Windows</span> · macOS coming soon · Linux coming soon
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="terminal-section" id="demo">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-title">Example</span>
+                </div>
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="terminal-dot"></div>
+                        <div class="terminal-dot"></div>
+                        <div class="terminal-dot"></div>
+                    </div>
+                    <div class="terminal-body">
+                        <div class="line"><span class="prompt">Downloads ></span><span class="input">show me all files</span></div>
+                        <div class="line"><span class="cmd">-> dir</span><span class="output">[Enter]</span></div>
+                        <div class="line"><span class="output">Directory of C:\Users\dev\Downloads</span></div>
+                        <br>
+                        <div class="line"><span class="prompt">Downloads ></span><span class="input">create a folder called projects</span></div>
+                        <div class="line"><span class="cmd">-> mkdir projects</span><span class="output">[Enter]</span></div>
+                        <br>
+                        <div class="line"><span class="prompt">Downloads ></span><span class="input">delete the temp folder</span></div>
+                        <div class="line"><span class="danger">[!] rmdir /s /q temp</span><span class="output">(dangerous) [y/N]</span></div>
+                        <br>
+                        <div class="line"><span class="prompt">Downloads ></span><span class="input">?dir /s</span></div>
+                        <div class="line"><span class="output">Lists files in current directory and subdirectories recursively.</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section" id="features">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-title">Features</span>
+                </div>
+                <div class="features-grid">
+                    <div class="feature">
+                        <h3>Multi-AI Provider</h3>
+                        <p>Switch between Gemini (free), OpenAI, or Claude with a single command.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Model Selection</h3>
+                        <p>Use any model: GPT-5.2, Claude Sonnet, Gemini Flash and more.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Safe Mode</h3>
+                        <p>Dangerous commands require explicit confirmation before execution.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Context Aware</h3>
+                        <p>Remembers your last 100 commands for smarter suggestions.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Explain Mode</h3>
+                        <p>Use ?command to get a plain explanation of what it does.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Auto Updates</h3>
+                        <p>Stay current with !update. Get new features instantly.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="commands-section" id="commands">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-title">Commands</span>
+                </div>
+                <div class="commands-list">
+                    <div class="command-row">
+                        <span class="command-name">!help</span>
+                        <span class="command-desc">Show help</span>
+                    </div>
+                    <div class="command-row">
+                        <span class="command-name">!provider &lt;name&gt;</span>
+                        <span class="command-desc">Switch AI provider (gemini/openai/claude)</span>
+                    </div>
+                    <div class="command-row">
+                        <span class="command-name">!model &lt;name&gt;</span>
+                        <span class="command-desc">Switch AI model (gpt-5.2, claude-sonnet-4, etc.)</span>
+                    </div>
+                    <div class="command-row">
+                        <span class="command-name">!model default</span>
+                        <span class="command-desc">Reset to default model</span>
+                    </div>
+                    <div class="command-row">
+                        <span class="command-name">!config</span>
+                        <span class="command-desc">Show current configuration</span>
+                    </div>
+                    <div class="command-row">
+                        <span class="command-name">!alias name=cmd</span>
+                        <span class="command-desc">Create a shortcut</span>
+                    </div>
+                    <div class="command-row">
+                        <span class="command-name">!update</span>
+                        <span class="command-desc">Update to latest version</span>
+                    </div>
+                    <div class="command-row">
+                        <span class="command-name">?command</span>
+                        <span class="command-desc">Explain what a command does</span>
+                    </div>
+                    <div class="command-row">
+                        <span class="command-name">!command</span>
+                        <span class="command-desc">Run command directly (bypass AI)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-inner">
+                <span>MIT License · Built by <a href="https://github.com/pieronoviello" target="_blank">Piero Noviello</a></span>
+                <div class="footer-links">
+                    <a href="https://github.com/pieronoviello/natsh" target="_blank">GitHub</a>
+                    <a href="https://github.com/pieronoviello/natsh#readme" target="_blank">Docs</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const commands = {
+            install: 'irm https://raw.githubusercontent.com/pieronoviello/natsh/main/install.ps1 | iex',
+            uninstall: 'irm https://raw.githubusercontent.com/pieronoviello/natsh/main/uninstall.ps1 | iex'
+        };
+
+        function showTab(tab) {
+            document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('install-cmd').textContent = commands[tab];
+            document.getElementById('install-box').classList.toggle('uninstall', tab === 'uninstall');
+        }
+
+        function copyCmd() {
+            navigator.clipboard.writeText(document.getElementById('install-cmd').textContent);
+            const btn = document.querySelector('.copy-btn');
+            btn.textContent = 'copied!';
+            btn.style.background = '#4ade80';
+            btn.style.color = '#000';
+            setTimeout(() => {
+                btn.textContent = 'copy';
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
