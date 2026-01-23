@@ -11,7 +11,7 @@ set "BIN_DIR=%USERPROFILE%\.local\bin"
 
 echo.
 echo   natsh - Natural Shell
-echo   Talk to your terminal in plain words
+echo   Say it. Run it.
 echo.
 
 :: Check for Python

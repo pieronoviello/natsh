@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 natsh - Natural Shell
-Talk to your terminal in plain words
+Say it. Run it.
 
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
