@@ -6,7 +6,7 @@ Say it. Run it.
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.4.2"
+VERSION = "1.4.3"
 
 import os
 import sys
@@ -952,7 +952,9 @@ del "%~f0"
                 except Exception as e:
                     print(f"cd: {e}")
             else:
+                print("\033[90m[..] running...\033[0m", end="", flush=True)
                 stdout, stderr = run_command(command)
+                print("\r\033[K", end="")  # Clear the running message
                 print(stdout, end="")
                 if stderr:
                     print(stderr, end="")
