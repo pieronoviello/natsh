@@ -6,7 +6,7 @@ Say it. Run it.
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.2.3"
+VERSION = "1.3.0"
 
 import os
 import sys
@@ -189,6 +189,73 @@ def format_context_history() -> str:
                 lines.append(f"   {line}")
     return "\n".join(lines)
 
+# ============== Package Management ==============
+
+def get_provider_package(provider: str) -> str:
+    """Get pip package name for provider"""
+    return {
+        "gemini": "google-genai",
+        "openai": "openai",
+        "claude": "anthropic"
+    }.get(provider, "google-genai")
+
+def is_package_installed(package: str) -> bool:
+    """Check if a pip package is installed"""
+    try:
+        import importlib.util
+        # Map package names to import names
+        import_names = {
+            "google-genai": "google.genai",
+            "openai": "openai",
+            "anthropic": "anthropic"
+        }
+        import_name = import_names.get(package, package)
+
+        # For nested imports like google.genai
+        if "." in import_name:
+            parts = import_name.split(".")
+            spec = importlib.util.find_spec(parts[0])
+            return spec is not None
+        else:
+            spec = importlib.util.find_spec(import_name)
+            return spec is not None
+    except (ImportError, ModuleNotFoundError):
+        return False
+
+def install_package(package: str) -> bool:
+    """Install a pip package"""
+    print(f"\033[33m[..] Installing {package}...\033[0m", end="", flush=True)
+    try:
+        # Use the venv's pip
+        if IS_WINDOWS:
+            pip_path = NATSH_DIR / "venv" / "Scripts" / "pip.exe"
+        else:
+            pip_path = NATSH_DIR / "venv" / "bin" / "pip"
+
+        result = subprocess.run(
+            [str(pip_path), "install", "-q", package],
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode == 0:
+            print(f" \033[32mdone\033[0m")
+            return True
+        else:
+            print(f" \033[31mfailed\033[0m")
+            print(f"\033[31m{result.stderr}\033[0m")
+            return False
+    except Exception as e:
+        print(f" \033[31mfailed: {e}\033[0m")
+        return False
+
+def ensure_provider_installed(provider: str) -> bool:
+    """Ensure the provider's package is installed"""
+    package = get_provider_package(provider)
+    if is_package_installed(package):
+        return True
+    return install_package(package)
+
 # ============== AI Providers ==============
 
 class AIProvider:
@@ -268,6 +335,11 @@ def init_ai_client(provider: str = None) -> AIProvider:
 
     if provider is None:
         provider = config.get("provider", "gemini")
+
+    # Ensure provider package is installed
+    if not ensure_provider_installed(provider):
+        print(f"\033[31mFailed to install {provider} library.\033[0m")
+        return None
 
     key_name = get_provider_key_name(provider)
     api_key = os.environ.get(key_name)

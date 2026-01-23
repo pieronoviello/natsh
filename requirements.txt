@@ -1,10 +1,11 @@
 # natsh - Natural Shell
 # Core dependencies
 
-# AI Providers (install at least one)
+# Default AI Provider
 google-genai      # Gemini (free tier available)
-openai            # OpenAI GPT (paid)
-anthropic         # Claude (paid)
 
 # Windows readline support
 pyreadline3
+
+# Other AI providers (openai, anthropic) are installed on-demand
+# when you switch provider with !provider command
