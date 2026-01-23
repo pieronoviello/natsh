@@ -6,7 +6,7 @@ Say it. Run it.
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.4.0"
+VERSION = "1.4.1"
 
 import os
 import sys
@@ -965,11 +965,11 @@ del "%~f0"
         except Exception as e:
             err = str(e)
             if "429" in err or "quota" in err.lower() or "rate" in err.lower():
-                print("\033[31mRate limit hit - wait a moment and try again\033[0m")
+                print(f"\033[31mRate limit hit - {err[:150]}\033[0m")
             elif "API key" in err or "authentication" in err.lower() or "apikey" in err.lower():
                 print("\033[31mAPI key error - run !api to set a new key\033[0m")
             elif "InterruptedError" not in err and "KeyboardInterrupt" not in err:
-                print(f"\033[31mError: {err[:100]}\033[0m")
+                print(f"\033[31mError: {err[:150]}\033[0m")
 
 if __name__ == "__main__":
     main()
