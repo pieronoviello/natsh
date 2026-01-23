@@ -6,7 +6,7 @@ Say it. Run it.
 Supports multiple AI providers: Gemini, OpenAI, Claude
 """
 
-VERSION = "1.3.0"
+VERSION = "1.3.1"
 
 import os
 import sys
@@ -406,21 +406,19 @@ def build_prompt(user_input: str, cwd: str) -> str:
 - Use '~' for home directory
 - Use 'open' on macOS or 'xdg-open' on Linux to open files"""
 
-    return f"""You are a shell command translator. Convert the user's natural language request into a shell command for {shell_info}.
+    return f"""Convert this request to a {shell_info} command.
 
-Current directory: {cwd}
-
-Recent command history:
+Directory: {cwd}
+History:
 {history_context}
 
-STRICT RULES:
-- Output ONLY the command, nothing else
-- No explanations, no markdown, no backticks, no quotes around the command
-- If unclear, make a reasonable assumption
-- Use the command history for context (e.g., "do that again", "undo that")
+Rules:
 {shell_rules}
 
-User request: {user_input}"""
+CRITICAL: Reply with ONLY the command. No explanations, no thinking, no markdown, no backticks, no "THOUGHT:", no quotes. Just the raw command.
+
+Request: {user_input}
+Command:"""
 
 def build_explain_prompt(command: str) -> str:
     """Build prompt to explain a command"""
@@ -430,13 +428,50 @@ Command: {command}
 
 Explain what it does and any important flags/options."""
 
+def clean_command(response: str) -> str:
+    """Clean up AI response to extract just the command"""
+    if not response:
+        return response
+
+    # Remove markdown code blocks
+    response = response.strip()
+    if response.startswith("```"):
+        lines = response.split("\n")
+        # Remove first and last lines (``` markers)
+        lines = [l for l in lines[1:] if not l.startswith("```")]
+        response = "\n".join(lines).strip()
+
+    # Remove backticks
+    response = response.strip("`")
+
+    # If contains "THOUGHT:" or reasoning, try to extract just the command
+    lines = response.split("\n")
+    for line in reversed(lines):
+        line = line.strip()
+        # Skip empty lines and reasoning
+        if not line:
+            continue
+        if any(x in line.upper() for x in ["THOUGHT", "THINK", "REASON", "BECAUSE", "LET ME", "I'LL", "I WILL"]):
+            continue
+        # This is likely the command
+        return line
+
+    # Fallback: return first non-empty line
+    for line in lines:
+        line = line.strip()
+        if line and not line.startswith(("#", "//", "THOUGHT")):
+            return line
+
+    return response.strip()
+
 def get_command(user_input: str, cwd: str) -> str:
     """Use AI to translate natural language to shell command"""
     if ai_client is None:
         return None
 
     prompt = build_prompt(user_input, cwd)
-    return ai_client.get_command(prompt)
+    response = ai_client.get_command(prompt)
+    return clean_command(response)
 
 def explain_command(command: str) -> str:
     """Use AI to explain a command"""
