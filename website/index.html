@@ -201,7 +201,7 @@
             color: var(--green);
         }
 
-        /* Terminal */
+        /* Demo Section */
         .terminal-section {
             padding: 60px 0;
             border-bottom: 1px solid var(--border);
@@ -219,6 +219,17 @@
             color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 0.1em;
+        }
+
+        .video-container {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .video-container video {
+            width: 100%;
+            display: block;
         }
 
         .terminal {
@@ -402,7 +413,7 @@
                     <span>natsh</span>
                 </a>
                 <nav class="nav-links">
-                    <a href="#demo">Example</a>
+                    <a href="#demo">Demo</a>
                     <a href="#features">Features</a>
                     <a href="#commands">Commands</a>
                     <a href="https://github.com/pieronoviello/natsh" target="_blank">GitHub</a>
@@ -436,28 +447,12 @@
         <section class="terminal-section" id="demo">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-title">Example</span>
+                    <span class="section-title">Demo</span>
                 </div>
-                <div class="terminal">
-                    <div class="terminal-header">
-                        <div class="terminal-dot"></div>
-                        <div class="terminal-dot"></div>
-                        <div class="terminal-dot"></div>
-                    </div>
-                    <div class="terminal-body">
-                        <div class="line"><span class="prompt">Downloads ></span><span class="input">show me all files</span></div>
-                        <div class="line"><span class="cmd">-> dir</span><span class="output">[Enter]</span></div>
-                        <div class="line"><span class="output">Directory of C:\Users\dev\Downloads</span></div>
-                        <br>
-                        <div class="line"><span class="prompt">Downloads ></span><span class="input">create a folder called projects</span></div>
-                        <div class="line"><span class="cmd">-> mkdir projects</span><span class="output">[Enter]</span></div>
-                        <br>
-                        <div class="line"><span class="prompt">Downloads ></span><span class="input">delete the temp folder</span></div>
-                        <div class="line"><span class="danger">[!] rmdir /s /q temp</span><span class="output">(dangerous) [y/N]</span></div>
-                        <br>
-                        <div class="line"><span class="prompt">Downloads ></span><span class="input">?dir /s</span></div>
-                        <div class="line"><span class="output">Lists files in current directory and subdirectories recursively.</span></div>
-                    </div>
+                <div class="video-container">
+                    <video autoplay loop muted playsinline>
+                        <source src="demo-fast.mp4" type="video/mp4">
+                    </video>
                 </div>
             </div>
         </section>
